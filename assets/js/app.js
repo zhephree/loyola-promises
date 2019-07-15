@@ -14,24 +14,31 @@ $("#login").click(function(){
 
 			loggedInUser = user;
 
-			return fetch('https://jsonplaceholder.typicode.com/posts?userId=' + user.id);
+			var userPosts = fetch('https://jsonplaceholder.typicode.com/posts?userId=' + user.id);
+			var userAlbums = fetch('https://jsonplaceholder.typicode.com/albums?userId=' + user.id);
+
+			return Promise.all([userPosts, userAlbums]);
 		})
-		.then(function(response){
-			return response.json();
-		})
-		.then(function(posts){
+		.then(function(results){
+			var posts;
+			var albums;
+
+
+			results[0].json().then(function(res){
+				posts = res.json();
+			});
+
+			results[1].json().then(function(res){
+				albums = res.json();
+			})
+
+
 			posts.forEach(function(post){
 				var li = $('<li></li>');
 				li.text(post.title);
 				$("#posts").append(li);
-			})
+			});
 
-			return fetch('https://jsonplaceholder.typicode.com/albums?userId=' + loggedInUser.id)
-		})
-		.then(function(response){
-			return response.json();
-		})
-		.then(function(albums){
 			albums.forEach(function(album){
 				var li = $('<li></li>');
 				li.text(album.title);
